@@ -77,6 +77,8 @@
 
         <div id="code">------</div>
 
+        <div id="qrcode"></div>
+
         <div id="status">Waiting...</div>
 
         <div id="sender"></div>
@@ -98,6 +100,17 @@
             document.getElementById("code").textContent = currentCode;
             document.getElementById("status").textContent = "Waiting...";
             document.getElementById("sender").textContent = "";
+
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = ""; // Clear previous QR code
+
+            const qrURL = window.location.origin + "/phone.html?code=" + encodeURIComponent(currentCode);
+
+            new QRCode(qrContainer, {
+                text: qrURL,
+                width: 200,
+                height: 200
+            });
         }
 
         async function checkStatus() {
@@ -120,6 +133,7 @@
         generateCode();
 
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 </body>
 
