@@ -36,6 +36,7 @@ app.post("/api/submit", (req, res) => {
 app.get("/api/status/:code", (req, res) => {
     const code = req.params.code?.toUpperCase();
 
+    // Hi
     // console.log(`Checking status for code: ${code}`);
     res.json({
         matched: sessions[code] ? sessions[code].matched : false,
