@@ -81,7 +81,7 @@
 
         <div id="code">------</div>
 
-        <div id="qrcode"></div>
+        <div id="qrcode">Hello</div>
 
         <div id="status">Waiting...</div>
 
@@ -113,7 +113,8 @@
             new QRCode(qrContainer, {
                 text: qrURL,
                 width: 200,
-                height: 200
+                height: 200,
+                align: "center"
             });
         }
 
