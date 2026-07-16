@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const crc = require("crc");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,8 +11,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const sessions = {};
 
-app.get("/api/create", (req, res) => {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+app.post("/api/create", (req, res) => {
+    let code;
+    let checkSum;
+    do {
+        checkSum = crc.crc16ccitt(req.body.string || "").toString(16).toUpperCase().padStart(4, "0");
+        code = (req.body.string || "") + checkSum;
+    } while (sessions[code]);
+
     sessions[code] = {
         matched: false,
         name: null

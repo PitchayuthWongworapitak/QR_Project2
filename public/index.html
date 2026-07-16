@@ -81,39 +81,54 @@
 
         <p>Enter this string on another device.</p>
 
-        <div id="code">------</div>
+        <div id="qrcode"></div>
 
-        <div id="qrcode">Hello</div>
+        <div>
+            <input type="tel" id="phoneNo" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="Phone Number">
+            <input type="number" step=".01" id="amount" placeholder="Amount">
+        </div>
 
-        <div id="status">Waiting...</div>
 
         <div id="sender"></div>
 
         <button onclick="generateCode()">
-            Generate New String
+            Generate QR
         </button>
 
-    </div>
 
+
+    </div>
     <script>
+        // Sample String 1: 00020101021129370016A0000006770101110113006664653364253037645406150.005802TH630498F1
+        // Sample String 2: 00 02 01 01 02 11 29 37 0016A00000067701011101130066646533642 53 03 764 54 06 500.00 58 02 TH 63 04 2D6D
 
         let currentCode = "";
 
         async function generateCode() {
-            const response = await fetch("api/create");
+            const phoneNo = "66" + document.getElementById("phoneNo").value.trim().substring(1, 10);
+            const amount = document.getElementById("amount").value.trim();
+            currentCode = `00020101021129370016A000000677010111011300${phoneNo}53037645406${amount}5802TH6304`;
+            const response = await fetch("api/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }, 
+                body: JSON.stringify({ string: currentCode })
+            });
             const data = await response.json();
+
             currentCode = data.code;
-            document.getElementById("code").textContent = currentCode;
-            document.getElementById("status").textContent = "Waiting...";
-            document.getElementById("sender").textContent = "";
+
+            //document.getElementById("status").textContent = "Waiting...";
+            //document.getElementById("sender").textContent = "";
 
             const qrContainer = document.getElementById("qrcode");
             qrContainer.innerHTML = ""; // Clear previous QR code
 
-            const qrURL = window.location.origin + "/phone.html?code=" + encodeURIComponent(currentCode);
+            console.log(`Generated QR Code URL: ${currentCode}`);
 
             new QRCode(qrContainer, {
-                text: qrURL,
+                text: currentCode,
                 width: 200,
                 height: 200,
                 align: "center"
@@ -135,12 +150,11 @@
                 }
             }
         }
-        setInterval(checkStatus, 1000);
-
-        generateCode();
+        // setInterval(checkStatus, 1000);
 
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 
 </body>
 
