@@ -381,7 +381,7 @@
 
     <div class="receipt-wrap">
         <div class="card">
-            <p class="eyebrow">Demo Build · No. 0042</p>
+            <p class="eyebrow">Orin Mike Tango · No. 0042 By Chopin</p>
             <h1>PROTOTYPE MACHINE</h1>
             <p class="tagline">PromptPay terminal · enter details, generate, scan</p>
 
@@ -390,7 +390,7 @@
             <div class="field">
                 <label for="billerId">Biller ID</label>
                 <span class="leader"></span>
-                <input type="text" id="billerId" placeholder="012345678901234">
+                <input type="text" id="billerId" placeholder="012345678901234" maxlength="15" minlength="15">
             </div>
 
             <!-- <div class="field">
@@ -402,19 +402,25 @@
             <div class="field">
                 <label for="branchId">Ref 1</label>
                 <span class="leader"></span>
-                <input type="text" id="branchId" placeholder="ABCDE12345">
+                <input type="text" id="branchId" placeholder="ABCDE01234">
             </div>
 
             <div class="field">
                 <label for="branchId2">Ref 2</label>
                 <span class="leader"></span>
-                <input type="text" id="branchId2" placeholder="ABCDE12345">
+                <input type="text" id="branchId2" placeholder="FGHIJ56789">
             </div>
 
             <div class="field">
-                <label for="name">Store</label>
+                <label for="branchId3">Ref 3</label>
                 <span class="leader"></span>
-                <input type="text" id="name" placeholder="Store name" minlength="3" maxlength="10">
+                <input type="text" id="branchId3" value="ZABCE270526000000001">
+            </div>
+
+            <div class="field">
+                <label for="name">Store Name(Optional)</label>
+                <span class="leader"></span>
+                <input type="text" id="name" placeholder="Store name" maxlength="10">
             </div>
 
             <div class="field">
@@ -465,7 +471,6 @@
             const billerId = document.getElementById("billerId").value.trim();
             const branchId = document.getElementById("branchId").value.trim();
             const branchId2 = document.getElementById("branchId2").value.trim();
-            const name = document.getElementById("name").value.trim();
             const amount = document.getElementById("amount").value.trim();
             //const phoneNo = document.getElementById("phoneNo").value.trim();
             if (billerId.length !== 15) {
@@ -480,9 +485,6 @@
             }
             if (branchId2.length == 0) {
                 return "Ref 2 is required.";
-            }
-            if (!/^[A-Z0-9]{3,10}$/.test(name)) {
-                return "Store name must be 3-10 characters, uppercase A-Z and 0-9 only.";
             }
             if (amount === "" || isNaN(Number(amount)) || Number(amount) <= 0) {
                 return "Enter a valid amount greater than 0.";
@@ -506,6 +508,7 @@
             const billerID = "0115"+document.getElementById("billerId").value.trim();
             const Ref1 = document.getElementById("branchId").value.trim();
             const Ref2 = document.getElementById("branchId2").value.trim();
+            const Ref3 = document.getElementById("branchId3").value.trim();
             const amount = Number(document.getElementById("amount").value.trim()).toFixed(2);
 
             const MerchantName = document.getElementById("name").value.trim();
@@ -514,7 +517,7 @@
             const longTag = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`;
             //const tagLength = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`.length;
 
-            currentCode = `0002010102${QRType}30${longTag.length.toString().padStart(2, '0')}${longTag}530376454${amount.length.toString().padStart(2, '0')}${amount}5802TH${MerchantString}62240720ZABCE2705260000000016304`;
+            currentCode = `0002010102${QRType}30${longTag.length.toString().padStart(2, '0')}${longTag}530376454${amount.length.toString().padStart(2, '0')}${amount}5802TH${MerchantString}62240720${Ref3}6304`;
 
             const response = await fetch("api/create", {
                 method: "POST",
