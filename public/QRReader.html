@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner / Reader
+    </title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Scan QR Codes</h1>
+        <div class="section">
+            <div id="my-qr-reader">
+            </div>
+        </div>
+        <div>
+            <input type="text" id="qr-string" placeholder="QR Code string">
+            <button onclick="readQRString(document.getElementById('qr-string').value)">Read QR Code</button>
+        </div>
+        <div id="result"></div>
+    </div>
+    <script
+        src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+    </script>
+    <script src="qr_reader.js"></script>
+</body>
+
+</html>

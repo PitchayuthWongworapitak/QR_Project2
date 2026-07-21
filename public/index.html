@@ -1,131 +1,537 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Machine</title>
+    <title>Prototype Machine · PromptPay Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
+        :root {
+            --ink: #0b1220;
+            --ink-2: #121b2e;
+            --paper: #f7f1e3;
+            --paper-2: #eee5cf;
+            --rule: #d9cca6;
+            --text: #221f16;
+            --text-dim: #7a7360;
+            --led: #00d68f;
+            --led-glow: rgba(0, 214, 143, .38);
+            --amber: #e59a1c;
+            --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+            --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 80px;
-            background: #f5f5f5;
+            font-family: var(--font-sans);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+            background:
+                radial-gradient(circle at 50% -10%, #1b2a44 0%, var(--ink) 55%),
+                var(--ink);
+            color: var(--text);
+        }
+
+        /* ---------- device switcher ---------- */
+        #switchPage {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        #switchPage button {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            padding: 9px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(247, 241, 227, .25);
+            background: rgba(247, 241, 227, .06);
+            color: #e9e4d6;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease;
+        }
+
+        #switchPage button:hover {
+            background: rgba(247, 241, 227, .14);
+            border-color: rgba(247, 241, 227, .45);
+        }
+
+        /* ---------- receipt card ---------- */
+        .receipt-wrap {
+            width: 100%;
+            max-width: 380px;
         }
 
         .card {
-            background: white;
-            width: 400px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+            position: relative;
+            background: var(--paper);
+            padding: 34px 30px 28px;
+            box-shadow:
+                0 30px 60px -20px rgba(0, 0, 0, .55),
+                0 0 0 1px rgba(0, 0, 0, .04);
         }
 
-        #code {
-            font-size: 42px;
-            font-weight: bold;
-            letter-spacing: 6px;
-            color: #1e88e5;
-            margin: 30px 0;
+        /* torn perforated edges, top and bottom */
+        .card::before,
+        .card::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 14px;
+            background:
+                radial-gradient(circle at 10px 0, transparent 8px, var(--paper) 8.5px) repeat-x;
+            background-size: 20px 20px;
         }
 
-        #status {
-            font-size: 24px;
-            color: orange;
+        .card::before {
+            top: -1px;
+            background-position: 0 -7px;
+        }
+
+        .card::after {
+            bottom: -1px;
+            transform: scaleY(-1);
+            background-position: 0 -7px;
+        }
+
+        .eyebrow {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-align: center;
+            margin: 6px 0 4px;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: .01em;
+            text-align: center;
+            margin: 0 0 2px;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--text-dim);
+            margin: 0 0 20px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1.5px dashed var(--rule);
+            margin: 18px 0;
+        }
+
+        /* ---------- receipt-style form rows ---------- */
+        .field {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 9px 0;
+        }
+
+        .field label {
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .field .leader {
+            flex: 1;
+            border-bottom: 1.5px dotted var(--rule);
+            height: 1px;
+            min-width: 10px;
+        }
+
+        .field input {
+            font-family: var(--font-mono);
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--text);
+            background: transparent;
+            border: none;
+            outline: none;
+            text-align: right;
+            min-width: 0;
+            width: 44%;
+            padding: 2px 0;
+        }
+
+        .field input::placeholder {
+            color: #b7ac8e;
+            font-weight: 400;
+        }
+
+        .field input:focus-visible {
+            outline: 2px solid var(--led);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        /* ---------- QR type segmented control ---------- */
+        .qr-type-row {
+            margin: 6px 0 4px;
+        }
+
+        .qr-type-row>span {
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .segmented {
+            display: flex;
+            border: 1.5px solid var(--rule);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .segmented input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .segmented label {
+            flex: 1;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 9px 6px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: background .15s ease, color .15s ease;
+            border-right: 1.5px solid var(--rule);
+        }
+
+        .segmented label:last-of-type {
+            border-right: none;
+        }
+
+        .segmented input[type="radio"]:checked+label {
+            background: var(--ink);
+            color: var(--led);
+        }
+
+        .segmented input[type="radio"]:focus-visible+label {
+            outline: 2px solid var(--led);
+            outline-offset: -2px;
+        }
+
+        /* ---------- action button ---------- */
+        .generate-btn {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--ink);
+            background: var(--led);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 0 0 var(--led-glow);
+            transition: transform .1s ease, box-shadow .2s ease;
+        }
+
+        .generate-btn:hover {
+            box-shadow: 0 0 0 6px var(--led-glow);
+        }
+
+        .generate-btn:active {
+            transform: scale(.98);
+        }
+
+        .generate-btn:focus-visible {
+            outline: 2px solid var(--ink);
+            outline-offset: 3px;
+        }
+
+        /* ---------- QR output ---------- */
+        .qr-stage {
+            margin-top: 26px;
+            display: flex;
+            justify-content: center;
         }
 
         #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
+            position: relative;
+            background: #fff;
+            padding: 14px;
+            border-radius: 2px;
+            box-shadow: 0 8px 22px -8px rgba(0, 0, 0, .35);
+            min-height: 20px;
         }
 
-        button {
-            margin-top: 25px;
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
+        /* little tape corners once a code exists */
+        #qrcode:not(:empty)::before,
+        #qrcode:not(:empty)::after {
+            content: "";
+            position: absolute;
+            width: 34px;
+            height: 14px;
+            background: rgba(247, 241, 227, .55);
+            border: 1px solid rgba(0, 0, 0, .05);
+            top: -8px;
         }
 
-        #switchPage {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-
-            padding: 10px 15px;
-
-            border: none;
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            background: #1976d2;
-            color: white;
+        #qrcode:not(:empty)::before {
+            left: 8px;
+            transform: rotate(-8deg);
         }
 
-        #switchPage:hover {
-            background: #1565c0;
+        #qrcode:not(:empty)::after {
+            right: 8px;
+            transform: rotate(7deg);
+        }
+
+        /* ---------- status ---------- */
+        .status-block {
+            margin-top: 20px;
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+
+        #status {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: var(--amber);
+        }
+
+        #status.matched {
+            color: var(--led);
+        }
+
+        #status::after {
+            content: "▌";
+            margin-left: 4px;
+            animation: blink 1.1s steps(1) infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #status::after {
+                animation: none;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        #sender {
+            margin-top: 4px;
+            font-size: 12.5px;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 420px) {
+            .card {
+                padding: 30px 20px 24px;
+            }
+
+            .field label {
+                font-size: 10.5px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <button id="switchPage" onclick="location.href='/phone.html'">
-        Sender >
-    </button>
+    <!-- <div id="switchPage">
+        <button onclick="location.href='/phone.html'">Sender</button>
+        <button onclick="location.href='/QRReader.html'">QR Reader</button>
+    </div> -->
 
-    <div class="card">
+    <div class="receipt-wrap">
+        <div class="card">
+            <p class="eyebrow">Demo Build · No. 0042</p>
+            <h1>PROTOTYPE MACHINE</h1>
+            <p class="tagline">PromptPay terminal · enter details, generate, scan</p>
 
-        <h1>Prototype Machine</h1>
+            <hr class="divider">
 
-        <p>Enter this string on another device.</p>
+            <div class="field">
+                <label for="billerId">Biller ID</label>
+                <span class="leader"></span>
+                <input type="text" id="billerId" placeholder="012345678901234">
+            </div>
 
-        <div id="qrcode"></div>
+            <!-- <div class="field">
+                <label for="phoneNo">Phone</label>
+                <span class="leader"></span>
+                <input type="tel" id="phoneNo" placeholder="0812345678" minlength="10" maxlength="10">
+            </div> -->
 
-        <div>
-            <input type="tel" id="phoneNo" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="Phone Number">
-            <input type="number" step=".01" id="amount" placeholder="Amount">
+            <div class="field">
+                <label for="branchId">Ref 1</label>
+                <span class="leader"></span>
+                <input type="text" id="branchId" placeholder="ABCDE12345">
+            </div>
+
+            <div class="field">
+                <label for="branchId2">Ref 2</label>
+                <span class="leader"></span>
+                <input type="text" id="branchId2" placeholder="ABCDE12345">
+            </div>
+
+            <div class="field">
+                <label for="name">Store</label>
+                <span class="leader"></span>
+                <input type="text" id="name" placeholder="Store name" minlength="3" maxlength="10">
+            </div>
+
+            <div class="field">
+                <label for="amount">Amount</label>
+                <span class="leader"></span>
+                <input type="number" step=".01" id="amount" placeholder="0.00">
+            </div>
+
+            <hr class="divider">
+
+            <fieldset class="qr-type-row" style="border:none; padding:0; margin:0;">
+                <span>QR Type</span>
+                <div class="segmented">
+                    <input type="radio" id="QRType" name="QRType" value="11" checked>
+                    <label for="QRType">Static</label>
+                    <input type="radio" id="QRType2" name="QRType" value="12">
+                    <label for="QRType2">Dynamic</label>
+                </div>
+            </fieldset>
+
+            <div id="errorMsg" class="error-msg" role="alert"></div>
+
+            <button class="generate-btn" onclick="generateCode()">Generate QR</button>
+
+            <div class="qr-stage">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="status-block">
+                <div id="status"></div>
+                <div id="sender"></div>
+            </div>
         </div>
-
-
-        <div id="sender"></div>
-
-        <button onclick="generateCode()">
-            Generate QR
-        </button>
-
-
-
     </div>
+
     <script>
         // Sample String 1: 00020101021129370016A0000006770101110113006664653364253037645406150.005802TH630498F1
         // Sample String 2: 00 02 01 01 02 11 29 37 0016A00000067701011101130066646533642 53 03 764 54 06 500.00 58 02 TH 63 04 2D6D
-
+        // Sample String 3: 00020101021230770016A00000067701011201150107537000017160220ABCD1234567890XXXXXX0310222222222253037645406199.785802TH5903ABC62240720ZXXXE231231235900001630463CF
         let currentCode = "";
 
-        async function generateCode() {
-            const phoneNo = "66" + document.getElementById("phoneNo").value.trim().substring(1, 10);
+
+        function setError(message) {
+            document.getElementById("errorMsg").textContent = message || "";
+        }
+
+        function validateInputs() {
+            const billerId = document.getElementById("billerId").value.trim();
+            const branchId = document.getElementById("branchId").value.trim();
+            const branchId2 = document.getElementById("branchId2").value.trim();
+            const name = document.getElementById("name").value.trim();
             const amount = document.getElementById("amount").value.trim();
-            currentCode = `00020101021129370016A000000677010111011300${phoneNo}53037645406${amount}5802TH6304`;
+            //const phoneNo = document.getElementById("phoneNo").value.trim();
+            if (billerId.length !== 15) {
+                return "Biller ID must be exactly 15 characters.";
+            }
+
+            //if (phoneNo.length > 0 && !/^\d{10}$/.test(phoneNo)) {
+            //    return "Phone number must be exactly 10 digits.";
+            //}
+            if (branchId.length == 0) {
+                return "Ref 1 is required.";
+            }
+            if (branchId2.length == 0) {
+                return "Ref 2 is required.";
+            }
+            if (!/^[A-Z0-9]{3,10}$/.test(name)) {
+                return "Store name must be 3-10 characters, uppercase A-Z and 0-9 only.";
+            }
+            if (amount === "" || isNaN(Number(amount)) || Number(amount) <= 0) {
+                return "Enter a valid amount greater than 0.";
+            }
+            return null;
+        }
+
+        async function generateCode() {
+            setError(null);
+
+            const validationError = validateInputs();
+            if (validationError) {
+                setError(validationError);
+                return;
+            }
+
+            const selectedRadio = document.querySelector('input[name="QRType"]:checked');
+            const AID = "0016A000000677010112";
+            const QRType = selectedRadio.value;
+            //const billerID = "0115010556006053301";
+            const billerID = "0115"+document.getElementById("billerId").value.trim();
+            const Ref1 = document.getElementById("branchId").value.trim();
+            const Ref2 = document.getElementById("branchId2").value.trim();
+            const amount = Number(document.getElementById("amount").value.trim()).toFixed(2);
+
+            const MerchantName = document.getElementById("name").value.trim();
+            const MerchantString = MerchantName.length > 0 ? `59${MerchantName.length.toString().padStart(2, '0')}${MerchantName}` : "";
+
+            const longTag = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`;
+            //const tagLength = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`.length;
+
+            currentCode = `0002010102${QRType}30${longTag.length.toString().padStart(2, '0')}${longTag}530376454${amount.length.toString().padStart(2, '0')}${amount}5802TH${MerchantString}62240720ZABCE2705260000000016304`;
+
             const response = await fetch("api/create", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }, 
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ string: currentCode })
             });
             const data = await response.json();
 
             currentCode = data.code;
 
-            //document.getElementById("status").textContent = "Waiting...";
-            //document.getElementById("sender").textContent = "";
-
             const qrContainer = document.getElementById("qrcode");
-            qrContainer.innerHTML = ""; // Clear previous QR code
+            qrContainer.innerHTML = "";
 
             console.log(`Generated QR Code URL: ${currentCode}`);
+
+            //document.getElementById("status").textContent = "Waiting...";
+            //document.getElementById("sender").textContent = "";
 
             new QRCode(qrContainer, {
                 text: currentCode,
@@ -151,11 +557,9 @@
             }
         }
         // setInterval(checkStatus, 1000);
-
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </body>
 
 </html>

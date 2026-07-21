@@ -24,6 +24,8 @@ app.post("/api/create", (req, res) => {
         name: null
     };
 
+    console.log(`Created session for code: ${code}`);
+
     res.json({
         code: code
     });
