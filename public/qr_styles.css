@@ -1,0 +1,318 @@
+/* ==========================================================================
+   QR Code Scanner / Reader — styles
+   Palette:   #0F1115 bg · #171A21 panel · #232733 line
+              #45F0A6 scan (primary) · #FFB74A amber (accent) · #E7EAF0 text
+   Type:      'Space Grotesk' (display) · 'IBM Plex Mono' (data / utility)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --bg: #0F1115;
+    --panel: #171A21;
+    --line: #232733;
+    --line-soft: #1D212B;
+    --text: #E7EAF0;
+    --text-dim: #838A9B;
+    --scan: #45F0A6;
+    --scan-dim: #1F5C46;
+    --amber: #FFB74A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse at top, rgba(69, 240, 166, 0.06), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+}
+
+.container {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+/* ---------- Header ---------- */
+
+h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 0.01em;
+    margin: 0 0 24px;
+    color: var(--text);
+}
+
+h1::before {
+    content: "◎ ";
+    color: var(--scan);
+}
+
+/* ---------- Sections / camera viewfinder ---------- */
+
+.section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 0 0 24px;
+    position: relative;
+}
+
+/* signature element: corner-bracket viewfinder frame, like a scanner UI */
+.section::before,
+.section::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--scan);
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 1;
+}
+
+.section::before {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.section::after {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}
+
+#my-qr-reader {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: #000;
+    outline: 1px solid var(--line-soft);
+}
+
+/* remaining two corners, in amber, on the opposite diagonal */
+#my-qr-reader::before,
+#my-qr-reader::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--amber);
+    z-index: 2;
+    opacity: 0.9;
+}
+
+#my-qr-reader::before {
+    top: 8px;
+    right: 8px;
+    border-left: none;
+    border-bottom: none;
+}
+
+#my-qr-reader::after {
+    bottom: 8px;
+    left: 8px;
+    border-right: none;
+    border-top: none;
+    animation: sweep 3.2s ease-in-out infinite;
+}
+
+@keyframes sweep {
+    0%, 100% { box-shadow: 0 0 0 rgba(69, 240, 166, 0); }
+    50% { box-shadow: 0 -110px 0 -2px rgba(69, 240, 166, 0.35); }
+}
+
+/* html5-qrcode injects its own <video>/<canvas>/buttons — keep them tidy */
+#my-qr-reader video,
+#my-qr-reader canvas {
+    border-radius: 2px;
+}
+
+#my-qr-reader img {
+    filter: invert(1);
+}
+
+/* ---------- Input row ---------- */
+
+.container > div:not(.section):not(#result) {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+input#qr-string {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+input#qr-string::placeholder {
+    color: var(--text-dim);
+}
+
+input#qr-string:focus {
+    border-color: var(--scan);
+    box-shadow: 0 0 0 3px rgba(69, 240, 166, 0.12);
+}
+
+button {
+    background: var(--scan);
+    color: #06110C;
+    border: none;
+    border-radius: 3px;
+    padding: 12px 18px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+button:hover {
+    background: #63F4B8;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+button:focus-visible,
+input#qr-string:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+}
+
+/* ---------- Result table ---------- */
+
+#result {
+    margin-top: 8px;
+}
+
+#result table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 13px;
+}
+
+#result thead th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--line-soft);
+    color: var(--scan);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--line);
+}
+
+#result td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    word-break: break-word;
+}
+
+#result tbody tr:last-child td {
+    border-bottom: none;
+}
+
+#result tbody tr:hover td {
+    background: rgba(69, 240, 166, 0.05);
+}
+
+#result td:first-child {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--amber);
+    width: 56px;
+}
+
+#result td:nth-child(2) {
+    color: var(--text-dim);
+    width: 190px;
+}
+
+/* nested (tag 30) sub-tables sit indented, quieter than the parent */
+#result td[colspan] {
+    padding: 0;
+    background: var(--bg);
+}
+
+#result td[colspan] table {
+    border: none;
+    border-radius: 0;
+    border-top: 1px dashed var(--line);
+    border-left: 3px solid var(--scan-dim);
+    margin-left: 12px;
+    width: calc(100% - 12px);
+}
+
+#result td[colspan] thead th {
+    background: transparent;
+    color: var(--text-dim);
+}
+
+#payButton {
+    margin-top: 5%;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+    body {
+        padding: 32px 14px 60px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .container > div:not(.section):not(#result) {
+        flex-direction: column;
+    }
+
+    #result td:nth-child(2) {
+        width: auto;
+    }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    #my-qr-reader::after {
+        animation: none;
+    }
+}

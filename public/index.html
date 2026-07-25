@@ -374,10 +374,10 @@
 </head>
 
 <body>
-    <!-- <div id="switchPage">
-        <button onclick="location.href='/phone.html'">Sender</button>
+    <div id="switchPage">
+        <!-- <button onclick="location.href='/phone.html'">Sender</button> -->
         <button onclick="location.href='/QRReader.html'">QR Reader</button>
-    </div> -->
+    </div>
 
     <div class="receipt-wrap">
         <div class="card">
@@ -505,7 +505,7 @@
             const AID = "0016A000000677010112";
             const QRType = selectedRadio.value;
             //const billerID = "0115010556006053301";
-            const billerID = "0115"+document.getElementById("billerId").value.trim();
+            const billerID = "0115" + document.getElementById("billerId").value.trim();
             const Ref1 = document.getElementById("branchId").value.trim();
             const Ref2 = document.getElementById("branchId2").value.trim();
             const Ref3 = document.getElementById("branchId3").value.trim();
@@ -522,7 +522,16 @@
             const response = await fetch("api/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ string: currentCode })
+                body: JSON.stringify({
+                    string: currentCode,
+                    info:
+                    {
+                        BillerNo: billerID,
+                        Ref1: Ref1,
+                        Ref2: Ref2,
+                        Amount: amount
+                    }
+                })
             });
             const data = await response.json();
 
@@ -554,12 +563,9 @@
 
             if (data.matched) {
                 document.getElementById("status").textContent = "Matched!";
-                if (data.name) {
-                    document.getElementById("sender").textContent = `Submitted by: ${data.name}`;
-                }
             }
         }
-        // setInterval(checkStatus, 1000);
+        setInterval(checkStatus, 1000);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>

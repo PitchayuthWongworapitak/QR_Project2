@@ -10,18 +10,29 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const sessions = {};
+function shallowEqual(a, b) {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+
+    if (keysA.length !== keysB.length) return false;
+
+    return keysA.every(key => a[key] === b[key]);
+}
 
 app.post("/api/create", (req, res) => {
     let code;
     let checkSum;
+    let INFO;
     do {
         checkSum = crc.crc16ccitt(req.body.string || "").toString(16).toUpperCase().padStart(4, "0");
         code = (req.body.string || "") + checkSum;
+        INFO = req.body.info;
     } while (sessions[code]);
 
     sessions[code] = {
         matched: false,
-        name: null
+        name: null,
+        info: INFO
     };
 
     console.log(`Created session for code: ${code}`);
@@ -32,7 +43,7 @@ app.post("/api/create", (req, res) => {
 })
 
 app.post("/api/submit", (req, res) => {
-    const {code, name} = req.body;
+    const code = req.body;
     if (sessions[code]) {
         sessions[code].matched = true;
         sessions[code].name = name || null;
@@ -41,10 +52,32 @@ app.post("/api/submit", (req, res) => {
         res.json({ success: false, message: "Invalid code" });
     }
 });
+app.post("/api/credit-info", (req, res) => {
+    const code = req.body.theCode;
+    console.log(code);
+    const creditInfo = req.body.mainInfo;
+    console.log("Sent credit info:", creditInfo);
+    let successMsg = creditInfo.ResultDesc;
+    let successCode = successMsg === "Successful" ? "0000" : "9999";
+    // const jsonResponse = {
+    //     ResCode: successCode,
+    //     ResDesc: successMsg,
+    //     TransDate: "" + new Date().toISOString().replace(/[-:]/g, "").split(".")[0],
+    // }
+    if (sessions[code]){
+        sessions[code].matched = true;
+        successMsg = "Successful";
+        successCode = "0000";
+    }
+    else{
+        successMsg = "Failure";
+        successCode = "9999";
+    }
+    res.json({ResCode: successCode, ResDesc: successMsg, TransDate: "" + new Date().toISOString().replace(/[-:]/g, "").split(".")[0]})
 
+});
 app.get("/api/status/:code", (req, res) => {
-    const code = req.params.code?.toUpperCase();
-
+    const code = req.params.code;
     // Hi
     // console.log(`Checking status for code: ${code}`);
     res.json({
