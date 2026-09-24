@@ -289,6 +289,15 @@ input#qr-string:focus-visible {
     margin-top: 5%;
 }
 
+#errorMessage {
+    margin-top: 5%;
+    color: red;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 480px) {

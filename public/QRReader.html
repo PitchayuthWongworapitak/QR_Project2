@@ -19,10 +19,11 @@
         </div>
         <div>
             <input type="text" id="qr-string" placeholder="QR Code string">
-            <button onclick="readQRString(document.getElementById('qr-string').value)">Read QR Code</button>
+            <button onclick="manualSubmit()">Read QR Code</button>
         </div>
         <div id="result"></div>
         <div id="payButton"></div>
+        <div id="errorMessage"></div>
     </div>
     <script
         src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">

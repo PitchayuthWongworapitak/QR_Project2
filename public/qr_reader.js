@@ -47,6 +47,7 @@ function readQRString(qrString, isSub = false) {
     // }
     if (!isSub) {
         document.getElementById("result").innerHTML = buildTable(createAPIBody(details));
+        // document.getElementById("payButton").innerHTML = `<button onClick="creditNotification(theMap)">Pay</button>`
     }
 
     console.log(mapToJson(details));
@@ -97,6 +98,13 @@ function formatDateTime(date = new Date()) {
     return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
 }
 
+function manualSubmit() {
+    const qrString = document.getElementById("qr-string").value;
+    theMap = readQRString(qrString);
+    //creditNotification(theMap);
+    document.getElementById("payButton").innerHTML = `<button onClick="creditNotification(theMap)">Pay</button>`
+}
+
 function createAPIBody(map) {
     const body = {};
     body["BillerNo"] = map.get("30")?.get("00");
@@ -119,7 +127,7 @@ async function creditNotification(map) {
             "Service-Name": "credit-notification",
             "Request-Datetime": new Date().toISOString().replace(/[-:]/g, "").split(".")[0],
         },
-        body: JSON.stringify({theCode: theCode, mainInfo: body})
+        body: JSON.stringify({ theCode: theCode, mainInfo: body })
     });
     const data = await response.json();
     console.log(JSON.stringify(data));

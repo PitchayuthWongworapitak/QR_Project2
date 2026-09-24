@@ -406,7 +406,7 @@
             </div>
 
             <div class="field">
-                <label for="branchId2">Ref 2</label>
+                <label for="branchId2">Ref 2(Optional)</label>
                 <span class="leader"></span>
                 <input type="text" id="branchId2" placeholder="FGHIJ56789">
             </div>
@@ -434,10 +434,11 @@
             <fieldset class="qr-type-row" style="border:none; padding:0; margin:0;">
                 <span>QR Type</span>
                 <div class="segmented">
-                    <input type="radio" id="QRType" name="QRType" value="11" checked>
-                    <label for="QRType">Static</label>
-                    <input type="radio" id="QRType2" name="QRType" value="12">
+
+                    <input type="radio" id="QRType2" name="QRType" value="12" checked>
                     <label for="QRType2">Dynamic</label>
+                    <input type="radio" id="QRType" name="QRType" value="11">
+                    <label for="QRType">Static</label>
                 </div>
             </fieldset>
 
@@ -461,10 +462,25 @@
         // Sample String 2: 00 02 01 01 02 11 29 37 0016A00000067701011101130066646533642 53 03 764 54 06 500.00 58 02 TH 63 04 2D6D
         // Sample String 3: 00020101021230770016A00000067701011201150107537000017160220ABCD1234567890XXXXXX0310222222222253037645406199.785802TH5903ABC62240720ZXXXE231231235900001630463CF
         let currentCode = "";
-
+        var dateInPast = function(firstDate, secondDate) {
+            return new Date(firstDate) < new Date(secondDate);
+        };
 
         function setError(message) {
             document.getElementById("errorMsg").textContent = message || "";
+        }
+
+        function extractExpireDate(ref3) {
+            if (ref3.charAt(4) !== 'E') return null;
+            const raw = ref3.slice(5, 15)
+            const dd = raw.slice(0, 2);
+            const mm = raw.slice(2, 4);
+            const yy = Number(raw.slice(4, 6))+2000;
+            const hh = raw.slice(6, 8);
+            const min = raw.slice(8, 10);
+
+            const date = new Date(Date.UTC(yy,mm,dd,hh,min))
+            return date.toISOString();
         }
 
         function validateInputs() {
@@ -483,12 +499,12 @@
             if (branchId.length == 0) {
                 return "Ref 1 is required.";
             }
-            if (branchId2.length == 0) {
-                return "Ref 2 is required.";
-            }
-            if (amount === "" || isNaN(Number(amount)) || Number(amount) <= 0) {
-                return "Enter a valid amount greater than 0.";
-            }
+            //if (branchId2.length == 0) {
+            //    return "Ref 2 is required.";
+            //}
+            //if (amount === "" || isNaN(Number(amount)) || Number(amount) <= 0) {
+            //    return "Enter a valid amount greater than 0.";
+            //}
             return null;
         }
 
@@ -509,15 +525,19 @@
             const Ref1 = document.getElementById("branchId").value.trim();
             const Ref2 = document.getElementById("branchId2").value.trim();
             const Ref3 = document.getElementById("branchId3").value.trim();
+            const ExpTime = extractExpireDate(Ref3);
             const amount = Number(document.getElementById("amount").value.trim()).toFixed(2);
+
+            const REFTWO = Ref2.length > 0 ? `03${Ref2.length.toString().padStart(2, '0')}${Ref2}` : "";
+            const AMOUNT = amount.length > 0 ? `54${amount.length.toString().padStart(2, '0')}${amount}` : "";
 
             const MerchantName = document.getElementById("name").value.trim();
             const MerchantString = MerchantName.length > 0 ? `59${MerchantName.length.toString().padStart(2, '0')}${MerchantName}` : "";
 
-            const longTag = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`;
+            const longTag = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}${REFTWO}`;
             //const tagLength = `${AID}${billerID}02${Ref1.length.toString().padStart(2, '0')}${Ref1}03${Ref2.length.toString().padStart(2, '0')}${Ref2}`.length;
 
-            currentCode = `0002010102${QRType}30${longTag.length.toString().padStart(2, '0')}${longTag}530376454${amount.length.toString().padStart(2, '0')}${amount}5802TH${MerchantString}62240720${Ref3}6304`;
+            currentCode = `0002010102${QRType}30${longTag.length.toString().padStart(2, '0')}${longTag}5303764${AMOUNT}5802TH${MerchantString}62240720${Ref3}6304`;
 
             const response = await fetch("api/create", {
                 method: "POST",
@@ -529,6 +549,7 @@
                         BillerNo: billerID,
                         Ref1: Ref1,
                         Ref2: Ref2,
+                        ExpDate: ExpTime,
                         Amount: amount
                     }
                 })
