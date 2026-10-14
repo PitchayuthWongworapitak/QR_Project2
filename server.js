@@ -161,16 +161,16 @@ app.get("/api/check-existence/", async (req, res) => {
     res.json({ exists: false });
 });
 
-app.get("/api/test-outside-URL", async (req, res) => {
-    const testURL = req.query.url; // Get the URL from the query parameter
-    const response = await fetch(testURL);
+app.post("/api/test-outside-URL", async (req, res) => {
+    const { url } = req.body; // Get the URL from the request body
+    const response = await fetch(url);
     const data = await response.json();
     
     console.log("Test Outside URL Response:", data);
     // Add your logic here to test the outside URL
 });
 
-app.get("/api/hello-world", (req, res) => {
+app.post("/api/hello-world", (req, res) => {
     console.log(req.body);
     const senderName = `${req.body.firstName || "World"} ${req.body.lastName || ""}`.trim();
     console.log(`Received request from: ${senderName}`);
