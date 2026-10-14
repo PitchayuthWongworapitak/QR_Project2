@@ -171,10 +171,9 @@ app.get("/api/test-outside-URL", async (req, res) => {
 });
 
 app.get("/api/hello-world", (req, res) => {
-    const senderName = req.query.sender || "Unknown";
-    const senderIP = req.ip || req.connection.remoteAddress || "Unknown";
-    console.log(`Received request from: ${senderName} (${senderIP})`);
-    res.json({ message: `Hello, ${senderName}!`, sender: senderIP });
+    const senderName = `${req.body.firstName || "World"} ${req.body.lastName || ""}`.trim();
+    console.log(`Received request from: ${senderName}`);
+    res.json({ message: `Hello, ${senderName}!`});
 });
 
 app.post("/api/test-outside-URL", async (req, res) => {
