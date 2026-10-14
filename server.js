@@ -9,7 +9,7 @@ const app = express();
 
 const PORT = 3000;
 
-console.log(config.keys.url, config.keys.publishable);
+console.log(config.keys.url, config.keys.publishable); // For Database!
 
 const supabase = createClient(
     config.keys.url,
@@ -159,6 +159,31 @@ app.get("/api/check-existence/", async (req, res) => {
         return;
     }
     res.json({ exists: false });
+});
+
+app.get("/api/test-outside-URL", async (req, res) => {
+    const testURL = req.query.url; // Get the URL from the query parameter
+    const response = await fetch(testURL);
+    const data = await response.json();
+    
+    console.log("Test Outside URL Response:", data);
+    // Add your logic here to test the outside URL
+});
+
+app.get("/api/hello-world", (req, res) => {
+    const senderName = req.query.sender || "Unknown";
+    const senderIP = req.ip || req.connection.remoteAddress || "Unknown";
+    console.log(`Received request from: ${senderName} (${senderIP})`);
+    res.json({ message: `Hello, ${senderName}!`, sender: senderIP });
+});
+
+app.post("/api/test-outside-URL", async (req, res) => {
+    const { url } = req.body;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    console.log("Test Outside URL Response:", data);
+    res.json({ success: true, data: data });
 });
 
 app.listen(PORT, () => {

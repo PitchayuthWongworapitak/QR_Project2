@@ -454,6 +454,10 @@
                 <div id="status"></div>
                 <div id="sender"></div>
             </div>
+
+            <div>
+                <button class="generate-btn" onclick="TestOutsideURL()">Test Outside URL</button>
+            </div>
         </div>
     </div>
 
@@ -572,6 +576,18 @@
                 height: 200,
                 align: "center"
             });
+        }
+
+        async function TestOutsideURL() {
+            const response = await fetch("/api/test-outside-URL",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url: "https://6ac894ccfd7c536b1bd95410.mockapi.io/steelballrun/characters"})
+            });
+            const data = await response.json();
+            console.log("Test Outside URL Response:", data);
         }
 
         async function checkStatus() {
