@@ -171,6 +171,7 @@ app.get("/api/test-outside-URL", async (req, res) => {
 });
 
 app.get("/api/hello-world", (req, res) => {
+    console.log(req.body);
     const senderName = `${req.body.firstName || "World"} ${req.body.lastName || ""}`.trim();
     console.log(`Received request from: ${senderName}`);
     res.json({ message: `Hello, ${senderName}!`});
