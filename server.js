@@ -30,6 +30,40 @@ function shallowEqual(a, b) {
     return keysA.every(key => a[key] === b[key]);
 }
 
+
+function getFormattedDate() {
+    const date = new Date();
+
+    const pad = (n, digits = 2) =>
+        String(n).padStart(digits, "0");
+
+    const offset = -date.getTimezoneOffset();
+    const sign = offset >= 0 ? "+" : "-";
+    const timezone =
+        `${sign}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60)}`;
+
+    return (
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+        `.${pad(date.getMilliseconds(), 3)}000${timezone}`
+    );
+}
+
+function getFormattedDate2() {
+    const date = new Date();
+    const pad = n => String(n).padStart(2, "0");
+
+    return (
+        date.getFullYear() +
+        pad(date.getMonth() + 1) +
+        pad(date.getDate()) +
+        pad(date.getHours()) +
+        pad(date.getMinutes()) +
+        pad(date.getSeconds())
+    );
+}
+
+
 app.post("/api/create", async (req, res) => {
     let code;
     let checkSum;
@@ -175,6 +209,37 @@ app.post("/api/hello-world", (req, res) => {
     const senderName = `${req.body.firstName || "World"} ${req.body.lastName || ""}`.trim();
     console.log(`Received request from: ${senderName}`);
     res.json({ message: `Hello, ${senderName}!`});
+});
+
+app.post("/api/credit-notification", (req, res) => {
+    let responseCode = "0000";
+    let responseDesc = "Successful";
+    const creditInfo = req.body;
+    console.log("Received credit notification:", creditInfo);
+
+    if (!creditInfo.Ref1 || !creditInfo.Ref2 || !creditInfo.BillerNo || !creditInfo.Amount || !creditInfo.InstructionId) {
+        responseCode = "0001";
+        responseDesc = "Invalid Input";
+    }
+    if (creditInfo.BillerNo.length !== 15) {
+        responseCode = "0003";
+        responseDesc = "Invalid BillerNo";
+    }
+
+    res.set({
+        "Content-Type": "application/json; charset=UTF-8",
+        "Service-Name":"credit-notification",
+        "Request-Datetime": getFormattedDate(),
+    })
+
+    res.json({
+        InstructionId: creditInfo.InstructionId,
+        ResCode: responseCode,
+        ResDesc: responseDesc,
+        TransDate: getFormattedDate2(),
+    });
+
+
 });
 
 app.post("/api/test-outside-URL", async (req, res) => {
